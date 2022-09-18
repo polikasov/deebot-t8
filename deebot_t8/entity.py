@@ -5,7 +5,7 @@ import threading
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Callable, Set
+from typing import List, Callable, Set, Dict
 
 from deebot_t8.api_client import ApiClient, DeviceInfo
 from deebot_t8.exceptions import ApiErrorException
@@ -16,7 +16,6 @@ LOGGER = logging.getLogger(__name__)
 
 @dataclass
 class ComponentLifeSpan:
-    component: str
     total: int
     left: int
 
@@ -83,7 +82,7 @@ class VacuumState:
     auto_boost_suction_enabled: bool | None = None
     auto_empty_enabled: bool | None = None
 
-    lifespan: List[ComponentLifeSpan] | None = None
+    lifespan: Dict[ComponentLifeSpan] | None = None
     total_stats: TotalStats | None = None
 
     _on_change: Callable[[VacuumState, str], None] | None = None
@@ -261,6 +260,11 @@ class DeebotEntity:
                 4: VacuumState.WaterFlow.ULTRA_HIGH,
             }
             self.state.water_level = water_flow_map[data["amount"]]
+        elif command == "onLifeSpan":
+            self.state.lifespan = {
+                x["type"]: ComponentLifeSpan(left=x["left"], total=x["total"])
+                for x in data
+            }
         elif command == "reportStats":
             # mq: reportStats {'data': {'cid': '1117230632', 'stop': 0, 'enablePowerMop': 0, 'powerMopType': 2, 'stopReason': 1, 'startReason': 1, 'type': 'spotArea'}} # noqa: E501
             # mq: reportStats {'data': {'cid': '1117230632', 'stop': 1, 'enablePowerMop': 0, 'powerMopType': 1, 'stopReason': 2, 'startReason': 1, 'type': 'spotArea', 'mapCount': 9, 'area': 0, 'start': '1624877304', 'time': 61, 'content': '1', 'aiopen': 1, 'aitypes': [], 'aiavoid': 0}} # noqa: E501
@@ -357,10 +361,10 @@ class DeebotEntity:
                 count=data["count"],
             )
         elif command == "getLifeSpan":
-            self.state.lifespan = [
-                ComponentLifeSpan(component=x["type"], left=x["left"], total=x["total"])
+            self.state.lifespan = {
+                x["type"]: ComponentLifeSpan(left=x["left"], total=x["total"])
                 for x in data
-            ]
+            }
         elif command == "getCarpertPressure":
             self.state.auto_boost_suction_enabled = bool(data["enable"])
         elif command == "getAutoEmpty":

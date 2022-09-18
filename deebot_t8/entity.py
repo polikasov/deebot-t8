@@ -232,7 +232,8 @@ class DeebotEntity:
             self.state.clean_stats = CleanStats(
                 area=data["area"],
                 time=data["time"],
-                avoid_count=data["avoidCount"],
+                avoid_count=(lambda x: x["avoidCount"]
+                             if "avoidCount" in x else None)(data),
                 start_time=data["start"],
             )
 

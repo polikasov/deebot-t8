@@ -85,6 +85,8 @@ class VacuumState:
     lifespan: Dict[ComponentLifeSpan] | None = None
     total_stats: TotalStats | None = None
 
+    position: Dict | None = None
+
     _on_change: Callable[[VacuumState, str], None] | None = None
 
     def __setattr__(self, key, value):
@@ -300,7 +302,7 @@ class DeebotEntity:
         elif command == "onMinorMap":
             pass
         elif command == "onPos":
-            pass
+            self.state.position = data
         elif command == "onRelocationState":
             pass
         elif command == "onRosNodeReady":

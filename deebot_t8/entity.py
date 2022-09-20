@@ -302,7 +302,7 @@ class DeebotEntity:
         elif command == "onMinorMap":
             pass
         elif command == "onPos":
-            self.state.position = data
+            self.state.position = data["deebotPos"]
         elif command == "onRelocationState":
             pass
         elif command == "onRosNodeReady":

@@ -145,6 +145,7 @@ class DeebotEntity:
                 ],
             ),
             ("getLifeSpan", ["sideBrush", "brush", "heap", "unitCare"]),
+            ("getPos", ['chargePos', 'deebotPos']),
             # The following requests are unused as they have an unknown purpose:
             # ("getBlock", None),
             # ("getBreakPoint", None),
@@ -368,6 +369,8 @@ class DeebotEntity:
                 x["type"]: ComponentLifeSpan(left=x["left"], total=x["total"])
                 for x in data
             }
+        elif command == "getPos":
+            self.state.position = data["deebotPos"]
         elif command == "getCarpertPressure":
             self.state.auto_boost_suction_enabled = bool(data["enable"])
         elif command == "getAutoEmpty":
